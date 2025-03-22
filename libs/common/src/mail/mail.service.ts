@@ -5,9 +5,13 @@ import { Injectable } from '@nestjs/common';
 export class MailService {
   constructor(private readonly mailerService: MailerService) {}
 
-  async sendMail(to: string, subject: string, text: string, html: string) {
+  async sendMail(
+    to: string,
+    subject: string,
+    text: string,
+    html: string,
+  ): Promise<void> {
     const mailOptions = {
-      // from: `"${process.env.SMTP_FROM_NAME}" <${process.env.SMTP_FROM}>`,
       to,
       subject,
       text,
@@ -24,9 +28,8 @@ export class MailService {
     template: string,
 
     context: Record<string, any>,
-  ) {
+  ): Promise<void> {
     await this.mailerService.sendMail({
-      // from: `"${process.env.SMTP_FROM_NAME}" <${process.env.SMTP_FROM}>`,
       to: to,
       subject: subject,
       template: template,

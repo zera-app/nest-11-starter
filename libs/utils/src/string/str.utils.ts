@@ -110,7 +110,8 @@ export class StrUtils {
   }
 
   static isAscii(subject: string): boolean {
-    return /^[\x00-\x7F]*$/.test(subject);
+    // eslint-disable-next-line no-control-regex
+    return /^[\u0000-\u007F]*$/.test(subject);
   }
 
   static isJson(subject: string): boolean {
@@ -332,7 +333,7 @@ export class StrUtils {
     breakStr: string = '\n',
   ): string {
     return subject.replace(
-      new RegExp(`(.{1,${width}})(\s+|$)`, 'g'),
+      new RegExp(`(.{1,${width}})(\\s+|$)`, 'g'),
       `$1${breakStr}`,
     );
   }

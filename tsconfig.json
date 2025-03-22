@@ -14,12 +14,18 @@
     "skipLibCheck": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@app/common": ["libs/common/src"],
       "@app/common/*": ["libs/common/src/*"],
+      "@app/repositories": ["libs/repositories/src"],
+      "@app/repositories/*": ["libs/repositories/src/*"],
       "@app/utils": ["libs/utils/src"],
       "@app/utils/*": ["libs/utils/src/*"]
     }

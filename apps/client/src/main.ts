@@ -31,4 +31,6 @@ async function bootstrap() {
   await app.listen(process.env.APP_CLIENT_PORT ?? 8002);
   console.log(`Client is running on: ${await app.getUrl()}`);
 }
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('Error during bootstrap:', error);
+});

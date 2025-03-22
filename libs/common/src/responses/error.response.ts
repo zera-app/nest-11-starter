@@ -6,7 +6,7 @@ export const errorResponse = (res: Response, error: any) => {
   const date = DateUtils.now().format('YYYY-MM-DD HH:mm:ss');
 
   console.log(`=============${date}==================`);
-  console.log(error);
+  console.error(error);
   console.log(`=======================================\n`);
 
   if (error instanceof HttpException) {
