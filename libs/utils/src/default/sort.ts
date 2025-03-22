@@ -1,0 +1,1 @@
+export const defaultSort = 'createdAt';
