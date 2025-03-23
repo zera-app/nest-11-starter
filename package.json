@@ -26,6 +26,7 @@
     "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
+    "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.1",
     "@prisma/client": "^6.5.0",
     "@types/crypto-js": "^4.2.2",
@@ -94,5 +95,8 @@
       "^@app/repositories(|/.*)$": "<rootDir>/libs/repositories/src/$1",
       "^@app/utils(|/.*)$": "<rootDir>/libs/utils/src/$1"
     }
+  },
+  "prisma": {
+    "seed": "ts-node -r tsconfig-paths/register ./prisma/seed.ts"
   }
 }

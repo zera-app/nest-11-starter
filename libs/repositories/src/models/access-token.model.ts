@@ -24,7 +24,7 @@ export function AccessTokenModel(tx?: Prisma.TransactionClient) {
       });
     },
 
-    async findToken(token: string): Promise<{ userId: string }> {
+    async findToken(token: string): Promise<{ userId: string; id: string }> {
       const decryptedToken = EncryptionUtils.decrypt(token);
       const accessToken = await db.accessToken.findFirst({
         where: { token: decryptedToken },
@@ -45,7 +45,7 @@ export function AccessTokenModel(tx?: Prisma.TransactionClient) {
         }
       }
 
-      return { userId: accessToken.userId };
+      return { userId: accessToken.userId, id: accessToken.id };
     },
 
     // async delete(token: string) {
