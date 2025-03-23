@@ -1,10 +1,8 @@
 import { UserInformation } from '@app/repositories';
 
-declare global {
-  namespace Express {
-    export interface Request {
-      user?: UserInformation;
-    }
+declare module 'express' {
+  interface Request {
+    user?: UserInformation;
   }
 }
 
