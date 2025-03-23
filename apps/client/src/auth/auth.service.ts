@@ -38,10 +38,7 @@ export class AuthService {
       });
     }
 
-    const isPasswordMatch = await HashUtils.compareHash(
-      password,
-      userData.password,
-    );
+    const isPasswordMatch = HashUtils.compareHash(password, userData.password);
     if (!isPasswordMatch) {
       throw new UnprocessableEntityException({
         message: 'Invalid email or password',
@@ -95,7 +92,7 @@ export class AuthService {
       data: {
         name,
         email,
-        password: await HashUtils.generateHash(password),
+        password: HashUtils.generateHash(password),
         emailVerification: undefined,
       },
     });
@@ -183,7 +180,7 @@ export class AuthService {
         id: user.id,
       },
       data: {
-        password: await HashUtils.generateHash(password),
+        password: HashUtils.generateHash(password),
       },
     });
 

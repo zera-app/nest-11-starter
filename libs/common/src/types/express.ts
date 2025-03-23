@@ -1,4 +1,4 @@
-import { UserInformation } from '@app/model/models/User.model';
+import { UserInformation } from '@app/repositories';
 
 declare global {
   namespace Express {
