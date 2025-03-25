@@ -3,7 +3,7 @@ import { ClientModule } from './client.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(ClientModule);
-  const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN?.split(',') ?? [
+  const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGINS?.split(',') ?? [
     'http://localhost:3000',
   ];
 

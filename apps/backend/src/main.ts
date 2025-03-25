@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN?.split(',') ?? [
+  const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGINS?.split(',') ?? [
     'http://localhost:3000',
   ];
   const ALLOWED_METHODS = process.env.ALLOWED_METHODS?.split(',') ?? [
