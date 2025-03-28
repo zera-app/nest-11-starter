@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '.';
 import { accessTokenLifetime } from '@app/utils/default/token-lifetime';
-import { DateUtils, EncryptionUtils } from '@app/utils';
+import { DateUtils } from '@app/utils';
 import { UnauthorizedException } from '@nestjs/common';
 
 export function AccessTokenModel(tx?: Prisma.TransactionClient) {
