@@ -13,19 +13,19 @@ import { VerifyDto } from './dtos/verify.dto';
 import { ResendVerificationDto } from './dtos/resend-verification.dto';
 import { ForgotPasswordDto } from './dtos/forgot-password.dto';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
+import { MailService } from '@app/common';
+import { EncryptionUtils } from '../../../../libs/utils/src/encryption/encryption.utils';
 
 @Injectable()
 export class AuthService {
-  constructor() {}
+  constructor(private readonly mailService: MailService) {}
 
   async signIn(
     data: SignInDto,
   ): Promise<{ accessToken: string; user: UserInformation }> {
-    const { email, password } = data;
-
     const userData = await UserModel().user.findUnique({
       where: {
-        email,
+        email: data.email,
       },
     });
 
@@ -38,7 +38,10 @@ export class AuthService {
       });
     }
 
-    const isPasswordMatch = HashUtils.compareHash(password, userData.password);
+    const isPasswordMatch = await HashUtils.compareHash(
+      data.password,
+      userData.password,
+    );
     if (!isPasswordMatch) {
       throw new UnprocessableEntityException({
         message: 'Invalid email or password',
@@ -48,15 +51,12 @@ export class AuthService {
       });
     }
 
-    const accessToken = await AccessTokenModel().create(
-      userData.id,
-      StrUtils.random(100),
-      !data.remember_me,
-    );
+    const token = StrUtils.random(100);
+    await AccessTokenModel().create(userData.id, token, !data.remember_me);
     const userInformation = await UserModel().findUser(userData.id);
 
     return {
-      accessToken: accessToken.token,
+      accessToken: EncryptionUtils.encrypt(token),
       user: userInformation,
     };
   }
@@ -71,6 +71,15 @@ export class AuthService {
     });
 
     if (isEmailExist) {
+      if (isEmailExist.emailVerifiedAt === null) {
+        throw new UnprocessableEntityException({
+          message: 'Email registered, please verify your email',
+          error: {
+            email: ['Email registered, please verify your email'],
+          },
+        });
+      }
+
       throw new UnprocessableEntityException({
         message: 'Email already exist',
         error: {
@@ -92,19 +101,33 @@ export class AuthService {
       data: {
         name,
         email,
-        password: HashUtils.generateHash(password),
-        emailVerification: undefined,
+        password: await HashUtils.generateHash(password),
       },
     });
 
-    await EmailVerificationModel().create(user.id);
+    const emailVerification = await EmailVerificationModel().create(user.id);
+
+    await this.mailService.sendMailWithTemplate(
+      user.email,
+      `Email Verification - ${process.env.APP_NAME}`,
+      'auth/email-verification',
+      {
+        url: `${process.env.CLIENT_FRONTEND_APP_URL}/auth/verify-email?token=${emailVerification.token}`,
+      },
+    );
   }
 
-  async signOut(accessToken: string): Promise<void> {
-    const token = await AccessTokenModel().findToken(accessToken);
+  async signOut(accessToken: string, user: UserInformation): Promise<void> {
+    if (!accessToken) {
+      return;
+    }
+
+    const decryptedToken = EncryptionUtils.decrypt(accessToken.split(' ')[1]);
+    const token = await AccessTokenModel().findToken(decryptedToken);
     await AccessTokenModel().accessToken.delete({
       where: {
         id: token.id,
+        userId: user.id,
       },
     });
   }
@@ -121,11 +144,17 @@ export class AuthService {
         id: user.id,
       },
       data: {
-        emailVerification: {
-          update: {
-            usedAt: DateUtils.now().toString(),
-          },
-        },
+        emailVerifiedAt: DateUtils.now().format(),
+      },
+    });
+
+    await EmailVerificationModel().emailVerification.update({
+      where: {
+        userId: user.id,
+        token: token,
+      },
+      data: {
+        usedAt: DateUtils.now().format(),
       },
     });
   }
@@ -143,7 +172,18 @@ export class AuthService {
       return;
     }
 
-    await EmailVerificationModel().create(userData.id);
+    const emailVerification = await EmailVerificationModel().create(
+      userData.id,
+    );
+
+    await this.mailService.sendMailWithTemplate(
+      userData.email,
+      `Email Verification - ${process.env.APP_NAME}`,
+      'auth/email-verification',
+      {
+        url: `${process.env.CLIENT_FRONTEND_APP_URL}/auth/verify-email?token=${emailVerification.token}`,
+      },
+    );
   }
 
   async forgotPassword(data: ForgotPasswordDto) {
@@ -158,7 +198,15 @@ export class AuthService {
       return;
     }
 
-    await ResetTokenModel().create(userData.id);
+    const token = await ResetTokenModel().create(userData.id);
+    await this.mailService.sendMailWithTemplate(
+      userData.email,
+      `Password Reset - ${process.env.APP_NAME}`,
+      'auth/forgot-password',
+      {
+        url: `${process.env.CLIENT_FRONTEND_APP_URL}/auth/reset-password?token=${token.token}`,
+      },
+    );
   }
 
   async resetPassword(data: ResetPasswordDto) {
@@ -180,16 +228,17 @@ export class AuthService {
         id: user.id,
       },
       data: {
-        password: HashUtils.generateHash(password),
+        password: await HashUtils.generateHash(password),
       },
     });
 
     await ResetTokenModel().resetToken.update({
       where: {
         userId: user.id,
+        token: token,
       },
       data: {
-        expiresAt: DateUtils.now().toString(),
+        usedAt: DateUtils.now().format(),
       },
     });
   }

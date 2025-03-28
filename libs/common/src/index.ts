@@ -1,5 +1,6 @@
 export * from './common.module';
 
+export * from './decorators/current-user.decorator';
 export * from './mail/mail.module';
 export * from './mail/mail.service';
 export * from './pipes/custom-validation.pipe';

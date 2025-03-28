@@ -1,12 +1,12 @@
 import * as bcrypt from 'bcryptjs';
 
 export class HashUtils {
-  static generateHash(value: string): string {
+  static async generateHash(value: string): Promise<string> {
     const saltRounds = 10;
-    return bcrypt.hashSync(value, saltRounds);
+    return await bcrypt.hash(value, saltRounds);
   }
 
-  static compareHash(value: string, hash: string): boolean {
-    return bcrypt.compareSync(value, hash);
+  static async compareHash(value: string, hash: string): Promise<boolean> {
+    return await bcrypt.compare(value, hash);
   }
 }

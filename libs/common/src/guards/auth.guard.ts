@@ -1,4 +1,5 @@
 import { AccessTokenModel, UserModel } from '@app/repositories';
+import { EncryptionUtils } from '@app/utils';
 import {
   CanActivate,
   ExecutionContext,
@@ -16,7 +17,8 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Unauthorized');
     }
 
-    const accessTokenData = await AccessTokenModel().findToken(token);
+    const decryptedToken = EncryptionUtils.decrypt(token);
+    const accessTokenData = await AccessTokenModel().findToken(decryptedToken);
     const user = await UserModel().findUser(accessTokenData.userId);
     request.user = user;
 
