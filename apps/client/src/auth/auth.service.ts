@@ -38,6 +38,15 @@ export class AuthService {
       });
     }
 
+    if (userData.emailVerifiedAt === null) {
+      throw new UnprocessableEntityException({
+        message: 'Please verify your email address.',
+        error: {
+          email: ['Please verify your email address.'],
+        },
+      });
+    }
+
     const isPasswordMatch = await HashUtils.compareHash(
       data.password,
       userData.password,
