@@ -1,4 +1,5 @@
 export * from './common.module';
+export * from './token-cleanup/token-cleanup.module';
 
 export * from './decorators/current-user.decorator';
 export * from './mail/mail.module';
