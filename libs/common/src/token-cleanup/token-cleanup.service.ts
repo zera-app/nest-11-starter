@@ -8,27 +8,31 @@ import { Cron } from '@nestjs/schedule';
 export class TokenCleanupService {
   @Cron('0 0 * * *') // every day at midnight
   // @Cron('*/1 * * * *') // every 1 minute for testing
-  async tokenCleanUp(): Promise<void> {
+  tokenCleanUp(): void {
     {
       console.log('Token cleanup executed');
 
-      prisma.$transaction(async (prisma) => {
-        await AccessTokenModel(prisma).accessToken.deleteMany({
-          where: {
-            expiresAt: {
-              lte: DateUtils.now().toDate(),
+      prisma
+        .$transaction(async (prisma) => {
+          await AccessTokenModel(prisma).accessToken.deleteMany({
+            where: {
+              expiresAt: {
+                lte: DateUtils.now().toDate(),
+              },
             },
-          },
-        });
+          });
 
-        await AccessTokenModel(prisma).accessToken.deleteMany({
-          where: {
-            lastUsedAt: {
-              lte: autoDeleteTokenLifetime,
+          await AccessTokenModel(prisma).accessToken.deleteMany({
+            where: {
+              lastUsedAt: {
+                lte: autoDeleteTokenLifetime,
+              },
             },
-          },
+          });
+        })
+        .catch((error) => {
+          console.error('Error during token cleanup:', error);
         });
-      });
 
       console.log('Token cleanup completed');
     }
