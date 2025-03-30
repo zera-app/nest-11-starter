@@ -1,4 +1,5 @@
 export * from './common.module';
+export * from './bullmq/bullmq.module';
 export * from './token-cleanup/token-cleanup.module';
 export * from './cache/cache.module';
 

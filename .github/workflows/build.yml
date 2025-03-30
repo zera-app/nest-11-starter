@@ -24,8 +24,8 @@ jobs:
       - name: Build
         run: npm run format
 
-      - name: Commit linted files
-        uses: stefanzweifel/git-auto-commit-action@v5
+      # - name: Commit linted files
+      #   uses: stefanzweifel/git-auto-commit-action@v5
 
   lint:
     runs-on: ubuntu-latest

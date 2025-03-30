@@ -23,8 +23,8 @@ jobs:
       - name: Format
         run: bun run format
 
-      - name: Commit formatted files
-        uses: stefanzweifel/git-auto-commit-action@v5
+      # - name: Commit formatted files
+      #   uses: stefanzweifel/git-auto-commit-action@v5
 
   bun-lint:
     runs-on: ubuntu-latest
