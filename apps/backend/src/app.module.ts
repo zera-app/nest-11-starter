@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
-import { TokenCleanupModule } from '@app/common';
+import { CacheModule, TokenCleanupModule } from '@app/common';
 
 @Module({
-  imports: [AuthModule, TokenCleanupModule],
+  imports: [AuthModule, TokenCleanupModule, CacheModule],
   controllers: [AppController],
   providers: [],
 })

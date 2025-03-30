@@ -23,7 +23,9 @@
     "test:e2e": "jest --config ./apps/backend/test/jest-e2e.json"
   },
   "dependencies": {
+    "@keyv/redis": "^4.3.2",
     "@nestjs-modules/mailer": "^2.0.2",
+    "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/mapped-types": "*",
@@ -32,6 +34,8 @@
     "@prisma/client": "^6.5.0",
     "@types/crypto-js": "^4.2.2",
     "bcryptjs": "^3.0.2",
+    "cache-manager": "^6.4.1",
+    "cacheable": "^1.8.9",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "crypto-js": "^4.2.0",
