@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '.';
 import { NotFoundException } from '@nestjs/common';
+import { HashUtils } from '@app/utils';
 
 export type UserInformation = {
   id: string;
@@ -15,6 +16,18 @@ export function UserModel(tx?: Prisma.TransactionClient) {
 
   return {
     user: db.user,
+
+    async checkPassword(id: string, password: string): Promise<boolean> {
+      const user = await db.user.findUnique({
+        where: { id },
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      return await HashUtils.compareHash(password, user.password);
+    },
 
     // please don't change this function below, this for authentication purpose
     async findUser(id: string): Promise<UserInformation> {
