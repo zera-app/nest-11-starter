@@ -29,13 +29,13 @@ export class ProfileService {
       });
 
       if (user.email !== body.email) {
-        await EmailVerificationModel(tx).create(user.id);
+        const token = await EmailVerificationModel(tx).create(user.id);
         this.mailService.sendMailWithTemplate(
           body.email,
           'Email verification',
           'auth/email-verification',
           {
-            url: `${process.env.CLIENT_FRONTEND_APP_URL}/verify-email?token=${user.id}`,
+            url: `${process.env.CLIENT_FRONTEND_APP_URL}/verify-email?token=${token.token}`,
           },
         );
       }
