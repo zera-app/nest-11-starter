@@ -41,6 +41,13 @@ export class ProfileController {
     @Res() response: Response,
     @Body() body: UpdatePasswordDto,
   ) {
-    //
+    try {
+      const data = this.profileService.updatePassword(user, body);
+      return response
+        .status(200)
+        .json(successResponse(200, 'Password updated', data));
+    } catch (error) {
+      return errorResponse(response, error);
+    }
   }
 }
