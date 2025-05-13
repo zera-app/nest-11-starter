@@ -1,33 +1,22 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { CacheModule as NestCacheManager } from '@nestjs/cache-manager';
-import { createKeyv, Keyv } from '@keyv/redis';
-import { CacheableMemory } from 'cacheable';
+import * as redisStore from 'cache-manager-ioredis';
+import { AuthCacheService } from './auth-cache.service';
+import { CacheService } from './cache.service';
 
+@Global()
 @Module({
   imports: [
     NestCacheManager.registerAsync({
-      useFactory: () => {
-        return {
-          stores: [
-            new Keyv({
-              store: new CacheableMemory({
-                ttl: Number(process.env.REDIS_TLL) || 3600,
-                lruSize: 5000,
-              }),
-              namespace: 'cacheable',
-            }),
-            createKeyv(`redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`),
-          ],
-          isGlobal: true,
-          // ttl: Number(process.env.REDIS_TTL) || 3600,
-          // host: process.env.REDIS_HOST,
-          // port: Number(process.env.REDIS_PORT),
-        };
-      },
+      useFactory: () => ({
+        store: redisStore,
+        host: process.env.REDIS_HOST,
+        port: Number(process.env.REDIS_PORT),
+        ttl: (Number(process.env.REDIS_TTL) || 3600) * 1000,
+      }),
     }),
   ],
-  controllers: [],
-  providers: [],
-  exports: [],
+  providers: [AuthCacheService, CacheService],
+  exports: [AuthCacheService, CacheService],
 })
 export class CacheModule {}

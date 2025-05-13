@@ -10,7 +10,7 @@ export function AccessTokenModel(tx?: Prisma.TransactionClient) {
   return {
     accessToken: db.accessToken,
 
-    async create(userId: string, token: string, expiresAt: boolean): Promise<{ token: string }> {
+    async create(userId: string, token: string, expiresAt: boolean): Promise<{ token: string; expiresAt: Date | null }> {
       return db.accessToken.create({
         data: {
           userId,

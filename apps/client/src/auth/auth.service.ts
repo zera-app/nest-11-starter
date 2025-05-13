@@ -9,10 +9,14 @@ import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { MailService } from '@app/common';
 import { EncryptionUtils } from '../../../../libs/utils/src/encryption/encryption.utils';
 import { SignInDto } from './dtos/sign-in.dto';
+import { AuthCacheService } from '@app/common/cache/auth-cache.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly mailService: MailService) {}
+  constructor(
+    private readonly mailService: MailService,
+    private readonly authCacheService: AuthCacheService,
+  ) {}
 
   async signIn(data: SignInDto): Promise<{ accessToken: string; user: UserInformation }> {
     const userData = await UserModel().user.findUnique({
@@ -50,8 +54,15 @@ export class AuthService {
     }
 
     const token = StrUtils.random(100);
-    await AccessTokenModel().create(userData.id, token, !data.remember_me);
+    const accessToken = await AccessTokenModel().create(userData.id, token, !data.remember_me);
     const userInformation = await UserModel().findUser(userData.id);
+
+    const cacheKey = this.authCacheService.generateCacheKey(token);
+
+    await this.authCacheService.set(cacheKey, userInformation, {
+      token: token,
+      expiresAt: accessToken.expiresAt,
+    });
 
     return {
       accessToken: EncryptionUtils.encrypt(token),
