@@ -10,11 +10,7 @@ export function AccessTokenModel(tx?: Prisma.TransactionClient) {
   return {
     accessToken: db.accessToken,
 
-    async create(
-      userId: string,
-      token: string,
-      expiresAt: boolean,
-    ): Promise<{ token: string }> {
+    async create(userId: string, token: string, expiresAt: boolean): Promise<{ token: string }> {
       return db.accessToken.create({
         data: {
           userId,
@@ -24,9 +20,7 @@ export function AccessTokenModel(tx?: Prisma.TransactionClient) {
       });
     },
 
-    async findToken(
-      token: string,
-    ): Promise<{ userId: string; id: string; expiresAt: Date | null }> {
+    async findToken(token: string): Promise<{ userId: string; id: string; expiresAt: Date | null }> {
       const accessToken = await db.accessToken.findFirst({
         where: { token: token },
       });
@@ -36,12 +30,7 @@ export function AccessTokenModel(tx?: Prisma.TransactionClient) {
       }
 
       if (accessToken.expiresAt !== null) {
-        if (
-          DateUtils.isBefore(
-            DateUtils.parse(accessToken.expiresAt.toString()),
-            DateUtils.now(),
-          )
-        ) {
+        if (DateUtils.isBefore(DateUtils.parse(accessToken.expiresAt.toString()), DateUtils.now())) {
           throw new UnauthorizedException('Unauthorized,');
         }
       }

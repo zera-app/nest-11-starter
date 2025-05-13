@@ -16,9 +16,7 @@ import { CacheableMemory } from 'cacheable';
               }),
               namespace: 'cacheable',
             }),
-            createKeyv(
-              `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
-            ),
+            createKeyv(`redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`),
           ],
           isGlobal: true,
           // ttl: Number(process.env.REDIS_TTL) || 3600,

@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  UnprocessableEntityException,
-  ValidationError,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Injectable, UnprocessableEntityException, ValidationError, ValidationPipe } from '@nestjs/common';
 
 @Injectable()
 export class CustomValidationPipe extends ValidationPipe {
@@ -17,8 +12,7 @@ export class CustomValidationPipe extends ValidationPipe {
       },
       exceptionFactory: (errors: ValidationError[]) => {
         const formattedErrors = formatErrors(errors);
-        const firstMessage =
-          Object.values(formattedErrors)[0]?.[0] || 'Validation Failed';
+        const firstMessage = Object.values(formattedErrors)[0]?.[0] || 'Validation Failed';
         return new UnprocessableEntityException({
           statusCode: 422,
           message: firstMessage,
@@ -29,16 +23,11 @@ export class CustomValidationPipe extends ValidationPipe {
   }
 }
 
-function formatErrors(
-  errors: ValidationError[],
-  parentField = '',
-): Record<string, string[]> {
+function formatErrors(errors: ValidationError[], parentField = ''): Record<string, string[]> {
   const formattedErrors: Record<string, string[]> = {};
 
   errors.forEach((error) => {
-    const field = parentField
-      ? `${parentField}.${error.property}`
-      : error.property;
+    const field = parentField ? `${parentField}.${error.property}` : error.property;
 
     if (error.constraints) {
       formattedErrors[field] = Object.values(error.constraints);

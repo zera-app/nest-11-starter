@@ -30,12 +30,7 @@ export function EmailVerificationModel(tx?: Prisma.TransactionClient) {
       }
 
       if (emailVerification.expiresAt !== null) {
-        if (
-          DateUtils.isBefore(
-            DateUtils.parse(emailVerification.expiresAt.toString()),
-            DateUtils.now(),
-          )
-        ) {
+        if (DateUtils.isBefore(DateUtils.parse(emailVerification.expiresAt.toString()), DateUtils.now())) {
           throw new NotFoundException('Token expired');
         }
       }

@@ -1,4 +1,6 @@
 npm install
+npx prisma migrate dev
+npx prisma generate
 npm run format
 npm run lint
 npm run build

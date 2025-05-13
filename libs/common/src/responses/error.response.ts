@@ -5,10 +5,6 @@ import { Response } from 'express';
 export const errorResponse = (res: Response, error: any) => {
   const date = DateUtils.now().format('YYYY-MM-DD HH:mm:ss');
 
-  console.log(`=============${date}==================`);
-  console.error(error);
-  console.log(`=======================================\n`);
-
   if (error instanceof HttpException) {
     if (error instanceof UnprocessableEntityException) {
       return res.status(422).json({
@@ -39,6 +35,10 @@ export const errorResponse = (res: Response, error: any) => {
       data: null,
     });
   }
+
+  console.log(`=============${date}==================`);
+  console.error(error);
+  console.log(`=======================================\n`);
 
   return res.status(500).json({
     code: 500,

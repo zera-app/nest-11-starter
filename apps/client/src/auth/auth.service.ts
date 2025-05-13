@@ -1,12 +1,5 @@
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
-import { SignInDto } from './dtos/sign-in.dto';
-import {
-  AccessTokenModel,
-  EmailVerificationModel,
-  ResetTokenModel,
-  UserInformation,
-  UserModel,
-} from '@app/repositories';
+import { AccessTokenModel, EmailVerificationModel, ResetTokenModel, UserInformation, UserModel } from '@app/repositories';
 import { DateUtils, HashUtils, StrUtils } from '@app/utils';
 import { SignUpDto } from './dtos/sign-up.dto';
 import { VerifyDto } from './dtos/verify.dto';
@@ -15,14 +8,13 @@ import { ForgotPasswordDto } from './dtos/forgot-password.dto';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { MailService } from '@app/common';
 import { EncryptionUtils } from '../../../../libs/utils/src/encryption/encryption.utils';
+import { SignInDto } from './dtos/sign-in.dto';
 
 @Injectable()
 export class AuthService {
   constructor(private readonly mailService: MailService) {}
 
-  async signIn(
-    data: SignInDto,
-  ): Promise<{ accessToken: string; user: UserInformation }> {
+  async signIn(data: SignInDto): Promise<{ accessToken: string; user: UserInformation }> {
     const userData = await UserModel().user.findUnique({
       where: {
         email: data.email,
@@ -47,10 +39,7 @@ export class AuthService {
       });
     }
 
-    const isPasswordMatch = await HashUtils.compareHash(
-      data.password,
-      userData.password,
-    );
+    const isPasswordMatch = await HashUtils.compareHash(data.password, userData.password);
     if (!isPasswordMatch) {
       throw new UnprocessableEntityException({
         message: 'Invalid email or password',
@@ -116,14 +105,9 @@ export class AuthService {
 
     const emailVerification = await EmailVerificationModel().create(user.id);
 
-    await this.mailService.sendMailWithTemplate(
-      user.email,
-      `Email Verification - ${process.env.APP_NAME}`,
-      'auth/email-verification',
-      {
-        url: `${process.env.CLIENT_FRONTEND_APP_URL}/auth/verify-email?token=${emailVerification.token}`,
-      },
-    );
+    await this.mailService.sendMailWithTemplate(user.email, `Email Verification - ${process.env.APP_NAME}`, 'auth/email-verification', {
+      url: `${process.env.CLIENT_FRONTEND_APP_URL}/auth/verify-email?token=${emailVerification.token}`,
+    });
   }
 
   async signOut(accessToken: string, user: UserInformation): Promise<void> {
@@ -144,8 +128,7 @@ export class AuthService {
   async verifyEmail(data: VerifyDto): Promise<void> {
     const { token } = data;
 
-    const emailVerificationData =
-      await EmailVerificationModel().findToken(token);
+    const emailVerificationData = await EmailVerificationModel().findToken(token);
     const user = await UserModel().findUser(emailVerificationData.userId);
 
     await UserModel().user.update({
@@ -181,18 +164,11 @@ export class AuthService {
       return;
     }
 
-    const emailVerification = await EmailVerificationModel().create(
-      userData.id,
-    );
+    const emailVerification = await EmailVerificationModel().create(userData.id);
 
-    await this.mailService.sendMailWithTemplate(
-      userData.email,
-      `Email Verification - ${process.env.APP_NAME}`,
-      'auth/email-verification',
-      {
-        url: `${process.env.CLIENT_FRONTEND_APP_URL}/auth/verify-email?token=${emailVerification.token}`,
-      },
-    );
+    await this.mailService.sendMailWithTemplate(userData.email, `Email Verification - ${process.env.APP_NAME}`, 'auth/email-verification', {
+      url: `${process.env.CLIENT_FRONTEND_APP_URL}/auth/verify-email?token=${emailVerification.token}`,
+    });
   }
 
   async forgotPassword(data: ForgotPasswordDto) {
@@ -208,14 +184,9 @@ export class AuthService {
     }
 
     const token = await ResetTokenModel().create(userData.id);
-    await this.mailService.sendMailWithTemplate(
-      userData.email,
-      `Password Reset - ${process.env.APP_NAME}`,
-      'auth/forgot-password',
-      {
-        url: `${process.env.CLIENT_FRONTEND_APP_URL}/auth/reset-password?token=${token.token}`,
-      },
-    );
+    await this.mailService.sendMailWithTemplate(userData.email, `Password Reset - ${process.env.APP_NAME}`, 'auth/forgot-password', {
+      url: `${process.env.CLIENT_FRONTEND_APP_URL}/auth/reset-password?token=${token.token}`,
+    });
   }
 
   async resetPassword(data: ResetPasswordDto) {

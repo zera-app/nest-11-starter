@@ -1,12 +1,7 @@
 import { AccessTokenModel, UserModel } from '@app/repositories';
 import { DateUtils, EncryptionUtils } from '@app/utils';
 import { accessTokenLifetime } from '@app/utils/default/token-lifetime';
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
 
 @Injectable()
@@ -28,8 +23,7 @@ export class AuthGuard implements CanActivate {
         id: accessTokenData.id,
       },
       data: {
-        expiresAt:
-          accessTokenData.expiresAt === null ? null : accessTokenLifetime,
+        expiresAt: accessTokenData.expiresAt === null ? null : accessTokenLifetime,
         lastUsedAt: DateUtils.now().format(),
       },
     });

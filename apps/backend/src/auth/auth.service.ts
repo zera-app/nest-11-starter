@@ -1,10 +1,6 @@
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { SignInDto } from './dto/sign-in.dto';
-import {
-  AccessTokenModel,
-  UserInformation,
-  UserModel,
-} from '@app/repositories';
+import { AccessTokenModel, UserInformation, UserModel } from '@app/repositories';
 import { EncryptionUtils, HashUtils, StrUtils } from '@app/utils';
 
 @Injectable()
@@ -28,10 +24,7 @@ export class AuthService {
       });
     }
 
-    const isPasswordMatch = await HashUtils.compareHash(
-      body.password,
-      UserData.password,
-    );
+    const isPasswordMatch = await HashUtils.compareHash(body.password, UserData.password);
     if (!isPasswordMatch) {
       throw new UnprocessableEntityException({
         message: 'Invalid email or password',

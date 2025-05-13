@@ -1,8 +1,7 @@
 import * as CryptoJS from 'crypto-js';
 
 export class EncryptionUtils {
-  private static readonly secretKey =
-    process.env.APP_SECRET || 'default-secret-key';
+  private static readonly secretKey = process.env.APP_SECRET || 'default-secret-key';
 
   static encrypt(text: string): string {
     return CryptoJS.AES.encrypt(text, this.secretKey).toString();

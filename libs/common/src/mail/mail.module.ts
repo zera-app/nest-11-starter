@@ -2,10 +2,12 @@ import { Module } from '@nestjs/common';
 import { MailService } from './mail.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { BullmqModule } from '../bullmq/bullmq.module';
+import { MailProcessor } from './mail.processor';
 
 @Module({
-  providers: [MailService],
   imports: [
+    BullmqModule,
     MailerModule.forRootAsync({
       useFactory: () => ({
         transport: {
@@ -31,6 +33,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
       }),
     }),
   ],
+  providers: [MailService, MailProcessor],
   exports: [MailService],
 })
 export class MailModule {}

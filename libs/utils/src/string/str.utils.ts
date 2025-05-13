@@ -1,10 +1,7 @@
 export class StrUtils {
   static random(length: number = 16): string {
-    const characters =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    return Array.from({ length }, () =>
-      characters.charAt(Math.floor(Math.random() * characters.length)),
-    ).join('');
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    return Array.from({ length }, () => characters.charAt(Math.floor(Math.random() * characters.length))).join('');
   }
 
   static after(subject: string, search: string): string {
@@ -20,9 +17,7 @@ export class StrUtils {
   }
 
   static beforeLast(subject: string, search: string): string {
-    return subject.includes(search)
-      ? subject.substring(0, subject.lastIndexOf(search))
-      : subject;
+    return subject.includes(search) ? subject.substring(0, subject.lastIndexOf(search)) : subject;
   }
 
   static between(subject: string, from: string, to: string): string {
@@ -30,11 +25,7 @@ export class StrUtils {
   }
 
   static camel(subject: string): string {
-    return subject
-      .replace(/[-_ ]+./g, (match) =>
-        match.charAt(match.length - 1).toUpperCase(),
-      )
-      .replace(/^./, (char) => char.toLowerCase());
+    return subject.replace(/[-_ ]+./g, (match) => match.charAt(match.length - 1).toUpperCase()).replace(/^./, (char) => char.toLowerCase());
   }
 
   static charAt(subject: string, index: number): string {
@@ -46,9 +37,7 @@ export class StrUtils {
   }
 
   static chopEnd(subject: string, search: string): string {
-    return subject.endsWith(search)
-      ? subject.slice(0, -search.length)
-      : subject;
+    return subject.endsWith(search) ? subject.slice(0, -search.length) : subject;
   }
 
   static contains(subject: string, search: string | string[]): boolean {
@@ -72,23 +61,14 @@ export class StrUtils {
     return subject.endsWith(search);
   }
 
-  static excerpt(
-    subject: string,
-    phrase: string,
-    radius: number = 50,
-    end: string = '...',
-  ): string {
+  static excerpt(subject: string, phrase: string, radius: number = 50, end: string = '...'): string {
     const position = subject.indexOf(phrase);
     if (position === -1) return '';
 
     const start = Math.max(position - radius, 0);
     const excerpt = subject.substring(start, position + phrase.length + radius);
 
-    return (
-      (start > 0 ? end : '') +
-      excerpt +
-      (position + phrase.length + radius < subject.length ? end : '')
-    );
+    return (start > 0 ? end : '') + excerpt + (position + phrase.length + radius < subject.length ? end : '');
   }
 
   static finish(subject: string, cap: string): string {
@@ -96,12 +76,7 @@ export class StrUtils {
   }
 
   static headline(subject: string): string {
-    return subject
-      .replace(/[-_]+/g, ' ')
-      .replace(
-        /\w+/g,
-        (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
-      );
+    return subject.replace(/[-_]+/g, ' ').replace(/\w+/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
   }
 
   static is(subject: string, pattern: string): boolean {
@@ -137,9 +112,7 @@ export class StrUtils {
   }
 
   static isUuid(subject: string): boolean {
-    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-      subject,
-    );
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(subject);
   }
 
   static kebab(subject: string): string {
@@ -165,18 +138,9 @@ export class StrUtils {
     return subject.toLowerCase();
   }
 
-  static mask(
-    subject: string,
-    mask: string,
-    start: number = 0,
-    length?: number,
-  ): string {
+  static mask(subject: string, mask: string, start: number = 0, length?: number): string {
     const end = typeof length === 'undefined' ? subject.length : start + length;
-    return (
-      subject.slice(0, start) +
-      mask.repeat(Math.max(0, end - start)) +
-      subject.slice(end)
-    );
+    return subject.slice(0, start) + mask.repeat(Math.max(0, end - start)) + subject.slice(end);
   }
 
   static padBoth(subject: string, length: number, pad: string = ' '): string {
@@ -247,12 +211,7 @@ export class StrUtils {
     return (subject.match(new RegExp(search, 'g')) || []).length;
   }
 
-  static substrReplace(
-    subject: string,
-    replacement: string,
-    start: number,
-    length?: number,
-  ): string {
+  static substrReplace(subject: string, replacement: string, start: number, length?: number): string {
     const end = typeof length === 'undefined' ? subject.length : start + length;
     return subject.slice(0, start) + replacement + subject.slice(end);
   }
@@ -270,10 +229,7 @@ export class StrUtils {
   }
 
   static title(subject: string): string {
-    return subject.replace(
-      /\w+/g,
-      (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
-    );
+    return subject.replace(/\w+/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
   }
 
   static toBase64(subject: string): string {
@@ -327,22 +283,13 @@ export class StrUtils {
     return subject.trim().split(/\s+/).length;
   }
 
-  static wordWrap(
-    subject: string,
-    width: number,
-    breakStr: string = '\n',
-  ): string {
-    return subject.replace(
-      new RegExp(`(.{1,${width}})(\\s+|$)`, 'g'),
-      `$1${breakStr}`,
-    );
+  static wordWrap(subject: string, width: number, breakStr: string = '\n'): string {
+    return subject.replace(new RegExp(`(.{1,${width}})(\\s+|$)`, 'g'), `$1${breakStr}`);
   }
 
   static words(subject: string, words: number, end: string = '...'): string {
     const wordArray = subject.trim().split(/\s+/);
-    return wordArray.length > words
-      ? wordArray.slice(0, words).join(' ') + end
-      : subject;
+    return wordArray.length > words ? wordArray.slice(0, words).join(' ') + end : subject;
   }
 
   static wrap(subject: string, before: string, after?: string): string {

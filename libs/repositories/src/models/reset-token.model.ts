@@ -30,12 +30,7 @@ export function ResetTokenModel(tx?: Prisma.TransactionClient) {
       }
 
       if (resetToken.expiresAt !== null) {
-        if (
-          DateUtils.isBefore(
-            DateUtils.parse(resetToken.expiresAt.toString()),
-            DateUtils.now(),
-          )
-        ) {
+        if (DateUtils.isBefore(DateUtils.parse(resetToken.expiresAt.toString()), DateUtils.now())) {
           throw new NotFoundException('Token expired');
         }
       }

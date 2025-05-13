@@ -10,9 +10,16 @@ import { Module } from '@nestjs/common';
         port: Number(process.env.REDIS_PORT) || 6379,
       },
     }),
+    BullModule.registerQueue({
+      name: 'mail-queue',
+      connection: {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: Number(process.env.REDIS_PORT) || 6379,
+      },
+    }),
   ],
   controllers: [],
   providers: [],
-  exports: [],
+  exports: [BullModule], // <-- expose these queues
 })
 export class BullmqModule {}

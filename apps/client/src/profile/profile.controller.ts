@@ -14,38 +14,24 @@ export class ProfileController {
 
   @Get()
   getProfile(@CurrentUser() user: UserInformation, @Res() response: Response) {
-    return response
-      .status(200)
-      .json(successResponse(200, 'User profile', user));
+    return response.status(200).json(successResponse(200, 'User profile', user));
   }
 
   @Put()
-  async updateProfile(
-    @CurrentUser() user: UserInformation,
-    @Res() response: Response,
-    @Body() body: updateProfileDto,
-  ) {
+  async updateProfile(@CurrentUser() user: UserInformation, @Res() response: Response, @Body() body: updateProfileDto) {
     try {
       const data = await this.profileService.updateProfile(user, body);
-      return response
-        .status(200)
-        .json(successResponse(200, 'Profile updated', data));
+      return response.status(200).json(successResponse(200, 'Profile updated', data));
     } catch (error) {
       return errorResponse(response, error);
     }
   }
 
   @Put('password')
-  updatePassword(
-    @CurrentUser() user: UserInformation,
-    @Res() response: Response,
-    @Body() body: UpdatePasswordDto,
-  ) {
+  updatePassword(@CurrentUser() user: UserInformation, @Res() response: Response, @Body() body: UpdatePasswordDto) {
     try {
       const data = this.profileService.updatePassword(user, body);
-      return response
-        .status(200)
-        .json(successResponse(200, 'Password updated', data));
+      return response.status(200).json(successResponse(200, 'Password updated', data));
     } catch (error) {
       return errorResponse(response, error);
     }

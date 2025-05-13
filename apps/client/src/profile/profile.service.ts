@@ -1,11 +1,6 @@
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { updateProfileDto } from './dtos/update-profile.dto';
-import {
-  EmailVerificationModel,
-  prisma,
-  UserInformation,
-  UserModel,
-} from '@app/repositories';
+import { EmailVerificationModel, prisma, UserInformation, UserModel } from '@app/repositories';
 import { MailService } from '@app/common';
 import { UpdatePasswordDto } from './update-password.dto';
 import { HashUtils } from '@app/utils';
@@ -14,10 +9,7 @@ import { HashUtils } from '@app/utils';
 export class ProfileService {
   constructor(private readonly mailService: MailService) {}
 
-  async updateProfile(
-    user: UserInformation,
-    body: updateProfileDto,
-  ): Promise<UserInformation> {
+  async updateProfile(user: UserInformation, body: updateProfileDto): Promise<UserInformation> {
     const data = prisma.$transaction(async (tx) => {
       await UserModel(tx).user.update({
         where: { id: user.id },
@@ -30,14 +22,9 @@ export class ProfileService {
 
       if (user.email !== body.email) {
         const token = await EmailVerificationModel(tx).create(user.id);
-        this.mailService.sendMailWithTemplate(
-          body.email,
-          'Email verification',
-          'auth/email-verification',
-          {
-            url: `${process.env.CLIENT_FRONTEND_APP_URL}/verify-email?token=${token.token}`,
-          },
-        );
+        await this.mailService.sendMailWithTemplate(body.email, 'Email verification', 'auth/email-verification', {
+          url: `${process.env.CLIENT_FRONTEND_APP_URL}/verify-email?token=${token.token}`,
+        });
       }
 
       return {
@@ -53,10 +40,7 @@ export class ProfileService {
     return data;
   }
 
-  async updatePassword(
-    user: UserInformation,
-    body: UpdatePasswordDto,
-  ): Promise<UserInformation> {
+  async updatePassword(user: UserInformation, body: UpdatePasswordDto): Promise<UserInformation> {
     if (body.confirmPassword !== body.newPassword) {
       throw new UnprocessableEntityException({
         message: 'Password does not match',
@@ -66,10 +50,7 @@ export class ProfileService {
       });
     }
 
-    const isMatch = await UserModel(prisma).checkPassword(
-      user.id,
-      body.currentPassword,
-    );
+    const isMatch = await UserModel(prisma).checkPassword(user.id, body.currentPassword);
 
     if (!isMatch) {
       throw new UnprocessableEntityException({

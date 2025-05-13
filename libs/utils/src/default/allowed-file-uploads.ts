@@ -1,10 +1,4 @@
-export const allowedImageMimeTypes = [
-  'image/jpeg',
-  'image/png',
-  'image/jpg',
-  'image/gif',
-  'image/svg+xml',
-];
+export const allowedImageMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/svg+xml'];
 
 export const allowedFileMimeTypes = [
   'application/pdf',
