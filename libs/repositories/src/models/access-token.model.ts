@@ -41,11 +41,5 @@ export function AccessTokenModel(tx?: Prisma.TransactionClient) {
         expiresAt: accessToken.expiresAt,
       };
     },
-
-    // async delete(token: string) {
-    //   return db.accessToken.delete({
-    //     where: { token },
-    //   });
-    // },
   };
 }

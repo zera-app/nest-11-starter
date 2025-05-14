@@ -54,15 +54,11 @@ export class AuthService {
     }
 
     const token = StrUtils.random(100);
-    const accessToken = await AccessTokenModel().create(userData.id, token, !data.remember_me);
+    await AccessTokenModel().create(userData.id, token, !data.remember_me);
     const userInformation = await UserModel().findUser(userData.id);
 
-    const cacheKey = this.authCacheService.generateCacheKey(token);
-
-    await this.authCacheService.set(cacheKey, userInformation, {
-      token: token,
-      expiresAt: accessToken.expiresAt,
-    });
+    // Store user information in cache
+    await this.authCacheService.setUserInfo(userInformation.id, userInformation);
 
     return {
       accessToken: EncryptionUtils.encrypt(token),
@@ -128,12 +124,16 @@ export class AuthService {
 
     const decryptedToken = EncryptionUtils.decrypt(accessToken.split(' ')[1]);
     const token = await AccessTokenModel().findToken(decryptedToken);
+
     await AccessTokenModel().accessToken.delete({
       where: {
         id: token.id,
         userId: user.id,
       },
     });
+
+    // Remove user from cache when signing out
+    await this.authCacheService.deleteUserInfo(user.id);
   }
 
   async verifyEmail(data: VerifyDto): Promise<void> {

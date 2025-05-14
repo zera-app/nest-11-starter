@@ -7,44 +7,24 @@ import { Cache } from 'cache-manager';
 export class AuthCacheService {
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
-  async set(
-    key: string,
-    value: UserInformation,
-    tokenValue: {
-      token: string;
-      expiresAt: Date | null;
-    },
-  ): Promise<void> {
-    const data = {
-      userInformation: value,
-      tokenInformation: tokenValue,
-    };
-
+  async setUserInfo(userId: string, userInfo: UserInformation): Promise<void> {
+    const key = this.generateUserCacheKey(userId);
     const ttl = (Number(process.env.REDIS_TTL) || 3600) * 1000;
-
-    await this.cacheManager.set(key, data, ttl);
+    await this.cacheManager.set(key, userInfo, ttl);
   }
 
-  async get(key: string): Promise<{ userInformation: UserInformation; tokenInformation: { token: string; expiresAt: Date | null } } | null> {
+  async getUserInfo(userId: string): Promise<UserInformation | null> {
+    const key = this.generateUserCacheKey(userId);
     const cache = await this.cacheManager.get(key);
-    if (cache) {
-      return cache as {
-        userInformation: UserInformation;
-        tokenInformation: {
-          token: string;
-          expiresAt: Date | null;
-        };
-      };
-    }
-
-    return null;
+    return cache as UserInformation | null;
   }
 
-  async del(key: string): Promise<void> {
+  async deleteUserInfo(userId: string): Promise<void> {
+    const key = this.generateUserCacheKey(userId);
     await this.cacheManager.del(key);
   }
 
-  generateCacheKey(token: string): string {
-    return `auth:${token}`;
+  generateUserCacheKey(userId: string): string {
+    return `user:${userId}`;
   }
 }

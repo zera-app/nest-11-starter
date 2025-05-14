@@ -3,58 +3,56 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { Request } from 'express';
 import { AuthCacheService } from '../cache/auth-cache.service';
 import { AccessTokenModel, UserModel } from '@app/repositories';
-import { accessTokenLifetime } from '@app/utils/default/token-lifetime';
+import { TokenQueueService } from '../bullmq/services/token-queue.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly authCacheService: AuthCacheService) {}
+  constructor(
+    private readonly authCacheService: AuthCacheService,
+    private readonly tokenQueueService: TokenQueueService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
-    const token: string | undefined = this.extractTokenFromHeader(request);
-    if (!token) {
+    const bearerToken: string | undefined = this.extractTokenFromHeader(request);
+    if (!bearerToken) {
       throw new UnauthorizedException('Unauthorized');
     }
 
-    const decryptedToken = EncryptionUtils.decrypt(token);
+    const token = EncryptionUtils.decrypt(bearerToken);
 
-    const cacheKey = this.authCacheService.generateCacheKey(decryptedToken);
-    const cache = await this.authCacheService.get(cacheKey);
+    // Always fetch fresh token data from database
+    const accessTokenData = await AccessTokenModel().findToken(token);
+    if (!accessTokenData || !accessTokenData.userId) {
+      throw new UnauthorizedException('Unauthorized');
+    }
 
-    let userInformation = cache?.userInformation;
-    if (!userInformation) {
-      const accessTokenData = await AccessTokenModel().findToken(decryptedToken);
-      userInformation = await UserModel().findUser(accessTokenData.userId);
-
-      await AccessTokenModel().accessToken.update({
-        where: {
-          id: accessTokenData.id,
-        },
-        data: {
-          expiresAt: accessTokenData.expiresAt === null ? null : accessTokenLifetime,
-          lastUsedAt: DateUtils.now().format(),
-        },
-      });
-    } else {
-      const tokenInformation = cache?.tokenInformation;
-      if (tokenInformation === null) {
-        await this.authCacheService.del(cacheKey);
-        throw new UnauthorizedException('Unauthorized');
-      }
-
-      if (tokenInformation) {
-        if (tokenInformation.expiresAt !== null) {
-          if (DateUtils.isBefore(DateUtils.parse(tokenInformation.expiresAt.toString()), DateUtils.now())) {
-            await this.authCacheService.del(cacheKey);
-            throw new UnauthorizedException('Unauthorized');
-          }
-        }
-      } else {
-        await this.authCacheService.del(cacheKey);
+    if (accessTokenData.expiresAt !== null) {
+      if (DateUtils.isBefore(DateUtils.parse(accessTokenData.expiresAt.toString()), DateUtils.now())) {
         throw new UnauthorizedException('Unauthorized');
       }
     }
 
+    // Try to get user from cache first
+    // If not in cache, fetch from database and cache it
+    let userInformation = await this.authCacheService.getUserInfo(accessTokenData.userId);
+    if (!userInformation) {
+      userInformation = await UserModel().findUser(accessTokenData.userId);
+      if (!userInformation) {
+        throw new UnauthorizedException('Unauthorized');
+      }
+
+      // Store user in cache
+      await this.authCacheService.setUserInfo(userInformation.id, userInformation);
+    }
+
+    // Queue a job to update the token expiration in background
+    // This happens regardless of whether we got user from cache or database
+    if (accessTokenData.expiresAt !== null) {
+      await this.tokenQueueService.addUpdateTokenJob(token);
+    }
+
+    // Attach user to request
     request.user = userInformation;
 
     return true;

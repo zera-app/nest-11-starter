@@ -13,3 +13,5 @@ export * from './responses/success.response';
 export * from './types/datatable';
 export * from './types/express';
 export * from './types/pagination';
+
+export { TokenQueueService } from './bullmq/services/token-queue.service';
