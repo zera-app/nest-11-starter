@@ -4,6 +4,7 @@ import { Request } from 'express';
 import { AuthCacheService } from '../cache/auth-cache.service';
 import { AccessTokenModel, UserModel } from '@app/repositories';
 import { TokenQueueService } from '../bullmq/services/token-queue.service';
+import { extractTokenFromHeader } from './guard-functions';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -14,7 +15,7 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
-    const bearerToken: string | undefined = this.extractTokenFromHeader(request);
+    const bearerToken: string | undefined = extractTokenFromHeader(request);
     if (!bearerToken) {
       throw new UnauthorizedException('Unauthorized');
     }
@@ -56,10 +57,5 @@ export class AuthGuard implements CanActivate {
     request.user = userInformation;
 
     return true;
-  }
-
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
   }
 }

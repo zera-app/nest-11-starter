@@ -13,6 +13,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ApplicationScope {
+  BACKEND
+  CLIENT
+  ALL
+}
+
 model User {
   id                String             @id @default(uuid()) @db.Uuid
   email             String             @unique @db.VarChar(255)
@@ -33,7 +39,7 @@ model User {
 model Role {
   id          String           @id @default(uuid()) @db.Uuid
   name        String           @unique @db.VarChar(50)
-  scope       String?          @db.VarChar(50) // backend app, admin app, frontend app, etc. if null all apps
+  scope       ApplicationScope @default(BACKEND)
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
@@ -44,7 +50,7 @@ model Role {
 model Permission {
   id          String           @id @default(uuid()) @db.Uuid
   name        String           @unique @db.VarChar(50)
-  module      String?          @db.VarChar(15)
+  module      String           @db.VarChar(15)
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   

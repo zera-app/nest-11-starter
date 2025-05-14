@@ -20,7 +20,7 @@ export async function seedUser() {
     });
 
     if (role) {
-      prisma.roleUser.create({
+      await prisma.roleUser.create({
         data: {
           userId: user.id,
           roleId: role.id,
