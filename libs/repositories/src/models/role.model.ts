@@ -60,15 +60,14 @@ export function RoleModel(tx?: Prisma.TransactionClient) {
       if (queryParam.filter) {
         if (queryParam.filter['name']) {
           filter = {
-            roles: {
-              some: {
-                role: {
-                  name: {
-                    equals: queryParam.filter['name'],
-                  },
+            OR: [
+              {
+                name: {
+                  contains: queryParam.filter['name'],
+                  mode: 'insensitive',
                 },
               },
-            },
+            ],
           };
         }
 

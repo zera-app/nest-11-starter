@@ -6,6 +6,7 @@ import { Response } from 'express';
 import { DatatableType, errorResponse, SortDirection, successResponse } from '@app/common';
 import { paginationLength } from '@app/utils/default/pagination-length';
 import { defaultSort } from '@app/utils/default/sort';
+import { FilterValidationPipe } from '@app/common/pipes/filter-validation.pipe';
 
 @Controller('settings/role')
 export class RoleController {
@@ -28,7 +29,7 @@ export class RoleController {
     @Query('search') search: string,
     @Query('sort') sort: string,
     @Query('sortDirection') sortDirection: string,
-    @Query('filter') filter: Record<string, string | boolean | Date> | null,
+    @Query(new FilterValidationPipe()) filter: Record<string, string | boolean | Date> | null,
     @Res() res: Response,
   ) {
     try {

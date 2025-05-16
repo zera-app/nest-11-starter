@@ -79,15 +79,28 @@ export function UserModel(tx?: Prisma.TransactionClient) {
       if (queryParam.filter) {
         if (queryParam.filter['name']) {
           filter = {
-            roles: {
-              some: {
-                role: {
-                  name: {
-                    equals: queryParam.filter['name'],
-                  },
+            OR: [
+              {
+                name: {
+                  contains: queryParam.filter['name'],
+                  mode: 'insensitive',
                 },
               },
-            },
+            ],
+          };
+        }
+
+        if (queryParam.filter['email']) {
+          filter = {
+            ...filter,
+            OR: [
+              {
+                email: {
+                  contains: queryParam.filter['email'],
+                  mode: 'insensitive',
+                },
+              },
+            ],
           };
         }
 
