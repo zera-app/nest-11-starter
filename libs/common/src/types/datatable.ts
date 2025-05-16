@@ -3,7 +3,7 @@ export type SortDirection = 'asc' | 'desc';
 export type DatatableType = {
   page: number;
   limit: number;
-  search: string;
+  search: string | null;
   sort: string;
   sortDirection: SortDirection;
 

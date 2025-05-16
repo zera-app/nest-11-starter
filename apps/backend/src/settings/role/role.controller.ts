@@ -1,34 +1,77 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Query } from '@nestjs/common';
 import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { Response } from 'express';
+import { DatatableType, errorResponse, SortDirection, successResponse } from '@app/common';
+import { paginationLength } from '@app/utils/default/pagination-length';
+import { defaultSort } from '@app/utils/default/sort';
 
-@Controller('role')
+@Controller('settings/role')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
   @Post()
-  create(@Body() createRoleDto: CreateRoleDto) {
-    return this.roleService.create(createRoleDto);
+  async create(@Body() createRoleDto: CreateRoleDto, @Res() res: Response) {
+    try {
+      const data = await this.roleService.create(createRoleDto);
+      return res.status(201).json(successResponse(201, 'Success create role', data));
+    } catch (error) {
+      return errorResponse(res, error);
+    }
   }
 
   @Get()
-  findAll() {
-    return this.roleService.findAll();
+  async findAll(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('search') search: string,
+    @Query('sort') sort: string,
+    @Query('sortDirection') sortDirection: string,
+    @Query('filter') filter: Record<string, string | boolean | Date> | null,
+    @Res() res: Response,
+  ) {
+    try {
+      const query: DatatableType = {
+        page: page || 1,
+        limit: limit || paginationLength,
+        search: search || null,
+        sort: sort || defaultSort,
+        sortDirection: (sortDirection === 'asc' ? 'asc' : 'desc') as SortDirection,
+        filter: filter || null,
+      };
+
+      return res.status(200).json(successResponse(200, 'Success get roles', await this.roleService.findAll(query)));
+    } catch (error) {
+      return errorResponse(res, error);
+    }
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.roleService.findOne(+id);
+  async findOne(@Param('id') id: string, @Res() res: Response) {
+    try {
+      return res.status(200).json(successResponse(200, 'Success get role', await this.roleService.findOne(id)));
+    } catch (error) {
+      return errorResponse(res, error);
+    }
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    return this.roleService.update(+id, updateRoleDto);
+  async update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto, @Res() res: Response) {
+    try {
+      return res.status(200).json(successResponse(200, 'Success update role', await this.roleService.update(id, updateRoleDto)));
+    } catch (error) {
+      return errorResponse(res, error);
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.roleService.remove(+id);
+  async remove(@Param('id') id: string, @Res() res: Response) {
+    try {
+      await this.roleService.remove(id);
+      return res.status(200).json(successResponse(200, 'Success delete role', null));
+    } catch (error) {
+      return errorResponse(res, error);
+    }
   }
 }

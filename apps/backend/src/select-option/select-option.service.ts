@@ -1,10 +1,10 @@
-import { prisma } from '@app/repositories';
+import { PermissionModel, prisma } from '@app/repositories';
 import { Injectable } from '@nestjs/common';
 import { ApplicationScope } from '@prisma/client';
 
 @Injectable()
 export class SelectOptionService {
-  async selectRole(scope: ApplicationScope | null) {
+  async selectRole(scope: ApplicationScope | null): Promise<{ id: string; name: string; scope: ApplicationScope | null }[]> {
     let where = {};
     if (scope) {
       where = {
@@ -25,5 +25,9 @@ export class SelectOptionService {
         scope: true,
       },
     });
+  }
+
+  async selectPermissions(): Promise<{ module: string; permissions: { id: string; name: string }[] }[]> {
+    return await PermissionModel().selectPermissions();
   }
 }
