@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Query, UseGuards } from '@nestjs/common';
 import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
@@ -7,8 +7,15 @@ import { DatatableType, errorResponse, SortDirection, successResponse } from '@a
 import { paginationLength } from '@app/utils/default/pagination-length';
 import { defaultSort } from '@app/utils/default/sort';
 import { FilterValidationPipe } from '@app/common/pipes/filter-validation.pipe';
+import { AuthGuard } from '@app/common/guards/auth.guard';
+import { Scope } from '@app/common/decorators/scope.decorator';
+import { ApplicationScope } from '@prisma/client';
+import { Role } from '@app/common/decorators/role.decorator';
 
 @Controller('settings/role')
+@UseGuards(AuthGuard)
+@Scope(ApplicationScope.BACKEND)
+@Role('superuser')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
